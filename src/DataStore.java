@@ -8,7 +8,16 @@ public class DataStore implements Serializable {
     static DataStore instance = null;
 
     private DataStore(){
-        scores = new HashMap<>();
+        try {
+            scores = readObject().getScores();
+            if(scores.isEmpty()){
+                scores = new HashMap<>();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     void addScore(String name, Integer score){
@@ -45,12 +54,12 @@ public class DataStore implements Serializable {
 
     public final void writeObject() throws IOException {
         try {
-            FileOutputStream fileOut = new FileOutputStream("/tmp/datastore.ser");
+            FileOutputStream fileOut = new FileOutputStream("datastore.ser");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(this);
             out.close();
             fileOut.close();
-            System.out.printf("Serialized data is saved in /tmp/datastore.ser");
+            System.out.printf("Serialized data is saved in datastore.ser");
         } catch (IOException i) {
             i.printStackTrace();
         }
@@ -59,7 +68,7 @@ public class DataStore implements Serializable {
     public final DataStore readObject() throws IOException, ClassNotFoundException{
         DataStore ds = null;
         try {
-            FileInputStream fileIn = new FileInputStream("/tmp/employee.ser");
+            FileInputStream fileIn = new FileInputStream("datastore.ser");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             ds = (DataStore) in.readObject();
             in.close();
